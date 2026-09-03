@@ -1,0 +1,16 @@
+    # T1053.003 -- Scheduled Task/Job: Cron. Establishes persistence by
+    # dropping a beacon script and installing a root cron entry that runs it
+    # every 5 minutes, mirroring how an adversary keeps a foothold.
+    - name: T1053.003 | Drop the persistence beacon script
+      ansible.builtin.copy:
+        dest: /usr/local/bin/cxc-cron-beacon.sh
+        mode: "0755"
+        content: |
+          #!/bin/sh
+          echo "beacon $(date -u +%FT%TZ)" >> /var/log/cxc-cron-beacon.log
+
+    - name: T1053.003 | Install the cron persistence entry
+      ansible.builtin.cron:
+        name: cxc-t1053-003
+        minute: "*/5"
+        job: /usr/local/bin/cxc-cron-beacon.sh

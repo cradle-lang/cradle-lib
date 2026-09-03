@@ -1,0 +1,9 @@
+    # T1105 -- Ingress Tool Transfer. Simulates an adversary pulling tooling
+    # onto a compromised host from an external source. The transferred binary
+    # here is AVML (a real memory-acquisition tool already trusted elsewhere in
+    # this project), staged as a generic "cxc-ingress-tool".
+    - name: T1105 | Transfer tooling onto the host from an external source
+      ansible.builtin.get_url:
+        url: https://github.com/microsoft/avml/releases/download/v0.14.0/avml
+        dest: /usr/local/bin/cxc-ingress-tool
+        mode: "0755"

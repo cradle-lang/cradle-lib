@@ -1,0 +1,11 @@
+    # T1053.003 teardown -- remove the cron persistence entry and the beacon
+    # script so swapping this TTP out actually revokes the foothold.
+    - name: T1053.003 teardown | Remove the cron persistence entry
+      ansible.builtin.cron:
+        name: cxc-t1053-003
+        state: absent
+
+    - name: T1053.003 teardown | Remove the persistence beacon script
+      ansible.builtin.file:
+        path: /usr/local/bin/cxc-cron-beacon.sh
+        state: absent
