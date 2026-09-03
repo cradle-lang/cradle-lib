@@ -9,8 +9,7 @@ into the provisioning playbook at deploy time.
 
 ```
 heuristics/
-  <framework>/<value>/ansible/<value>.j2            # setup   (required)
-  <framework>/<value>/ansible/<value>-teardown.j2   # teardown (optional)
+  <framework>/<value>/ansible/<value>.j2   # setup task-list (required)
 ```
 
 - `<value>.j2` is a **Tera** template. Its rendered output is spliced verbatim
@@ -22,20 +21,20 @@ heuristics/
 - Available Tera variables: `config_asset_dir` (this heuristic's folder, for
   shipping asset files alongside the template), `linux_guest_home_dir`,
   `linux_guest_artifact_dir`.
-- `<value>-teardown.j2` is optional. `cxc update` renders it for any heuristic
-  present in the previous deploy but not the new one, **before** the new
-  heuristic's setup, so a swapped-out CVE releases whatever its replacement
-  will claim (a port, a package, a service).
+- Heuristics are **setup-only**: switching a CVE reprovisions the instance and
+  applies the new heuristic's setup, but the previous one is **not** torn down
+  (a swapped-out CVE's container/service keeps running until the box is
+  destroyed).
 
 ## Contents
 
-| Framework | Value | What it does | Teardown | Exposes |
-|-----------|-------|--------------|----------|---------|
-| cve | CVE-2021-41773 | Vulnerable `httpd:2.4.49` (path traversal / RCE) in Docker | `docker rm` | `:8041` |
-| cve | CVE-2021-44228 | Log4Shell vulnerable demo app in Docker | `docker rm` | `:8042` |
-| cve | CVE-2024-1086 | Version-gated: pins the box to an exact kernel | — (see below) | — |
-| ttp | T1053.003 | Cron persistence (beacon script + root crontab entry) | removes both | — |
-| ttp | T1105 | Ingress tool transfer (pulls tooling to the host) | removes the tool | — |
+| Framework | Value | What it does | Exposes |
+|-----------|-------|--------------|---------|
+| cve | CVE-2021-41773 | Vulnerable `httpd:2.4.49` (path traversal / RCE) in Docker | `:8041` |
+| cve | CVE-2021-44228 | Log4Shell vulnerable demo app in Docker | `:8042` |
+| cve | CVE-2024-1086 | Version-gated: pins the box to an exact kernel | — |
+| ttp | T1053.003 | Cron persistence (beacon script + root crontab entry) | — |
+| ttp | T1105 | Ingress tool transfer (pulls tooling to the host) | — |
 
 ### CVE-2024-1086 — version-gated kernel policy
 
@@ -49,8 +48,7 @@ a **pinned** kernel (`PINNED_KERNEL`, default `5.15.0-25-generic`):
 The default pin is intentionally an *old* 22.04 kernel, so on a patched box the
 "refuse to downgrade" branch fires and **no reboot happens** — safe for a first
 smoke test. Raise the pin above the box's running kernel to deliberately exercise
-the install-and-reboot path. There is no teardown template: a kernel install/reboot
-is not something to auto-undo.
+the install-and-reboot path.
 
 ## Notes
 

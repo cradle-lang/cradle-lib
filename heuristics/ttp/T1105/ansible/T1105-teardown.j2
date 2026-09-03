@@ -1,6 +1,0 @@
-    # T1105 teardown -- remove the ingressed tooling so swapping this TTP out
-    # leaves no transferred artifact behind.
-    - name: T1105 teardown | Remove the ingressed tool
-      ansible.builtin.file:
-        path: /usr/local/bin/cxc-ingress-tool
-        state: absent
