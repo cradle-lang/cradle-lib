@@ -1,0 +1,38 @@
+    - name: Allow ICMP v4
+      community.windows.win_firewall_rule:
+        name: Allow incoming ICMP echo request
+        enabled: yes
+        state: present
+        action: allow
+        direction: in
+        protocol: icmpv4
+
+    - name: Allow FTP port 21
+      community.windows.win_firewall_rule:
+        name: FTP
+        localport: 21
+        action: allow
+        direction: out
+        protocol: tcp
+        state: present
+        enabled: yes
+
+    - name: Allow HTTP port 80
+      community.windows.win_firewall_rule:
+        name: HTTP
+        localport: 80
+        action: allow
+        direction: out
+        protocol: tcp
+        state: present
+        enabled: yes
+
+    - name: Allow HTTPS port 443
+      community.windows.win_firewall_rule:
+        name: HTTPS
+        localport: 443
+        action: allow
+        direction: out
+        protocol: tcp
+        state: present
+        enabled: yes

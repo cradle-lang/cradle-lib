@@ -1,0 +1,6 @@
+    - name: Install unzip
+      become: yes
+      apt:
+        name: unzip
+        state: present
+        update_cache: yes

@@ -1,0 +1,6 @@
+    - name: Install Python web packages
+      become: yes
+      pip:
+        name:
+          - flask
+          - requests

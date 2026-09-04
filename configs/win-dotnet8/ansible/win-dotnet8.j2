@@ -1,0 +1,15 @@
+    - name: Ensure Temp directory exists
+      win_file:
+        path: C:\Temp
+        state: directory
+
+    - name: Download .NET 8 SDK
+      win_get_url:
+        url: https://dotnetcli.azureedge.net/dotnet/Sdk/8.0.100/dotnet-sdk-8.0.100-win-x64.exe
+        dest: C:\Temp\dotnet-sdk-8.0.100-win-x64.exe
+
+    - name: Install .NET 8 SDK
+      win_package:
+        path: C:\Temp\dotnet-sdk-8.0.100-win-x64.exe
+        arguments: /quiet /norestart
+        state: present

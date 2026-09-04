@@ -1,0 +1,25 @@
+    - name: Set monitor timeout to never (AC)
+      win_shell: powercfg -change -monitor-timeout-ac 0
+
+    - name: Set monitor timeout to never (DC)
+      win_shell: powercfg -change -monitor-timeout-dc 0
+
+    - name: Set sleep to never (AC)
+      win_shell: powercfg -change -standby-timeout-ac 0
+
+    - name: Set sleep to never (DC)
+      win_shell: powercfg -change -standby-timeout-dc 0
+
+    - name: Disable hibernation
+      win_shell: powercfg -hibernate off
+
+    - name: Disable shutdown task
+      win_shell: Get-ScheduledTask | Where-Object { $_.TaskName -like '*shutdown*' } | Disable-ScheduledTask
+      ignore_errors: true
+
+    - name: Disable shutdown tracker via registry
+      win_regedit:
+        path: HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        name: DisableShutdownEventTracker
+        data: 1
+        type: dword

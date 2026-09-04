@@ -1,0 +1,13 @@
+    - name: Install Apache2
+      become: yes
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+    - name: Start Apache2
+      become: yes
+      service:
+        name: apache2
+        state: started
+        enabled: yes

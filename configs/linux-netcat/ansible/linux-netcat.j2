@@ -1,0 +1,6 @@
+    - name: Install Netcat
+      become: yes
+      apt:
+        name: netcat
+        state: present
+        update_cache: yes

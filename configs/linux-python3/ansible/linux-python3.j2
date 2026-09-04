@@ -1,0 +1,31 @@
+    - name: Check if python3 is installed
+      command: dpkg-query -l python3
+      register: python3_check
+      ignore_errors: yes
+
+    - name: Ensure python3-debian for deb822 repositories
+      become: yes
+      apt:
+        name: python3-debian
+        state: present
+      when: python3_check is failed
+
+    - name: Add deadsnakes PPA
+      become: yes
+      ansible.builtin.deb822_repository:
+        name: deadsnakes
+        types: [deb]
+        uris: [https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu]
+        suites: ["{% raw %}{{ ansible_facts['distribution_release'] }}{% endraw %}"]
+        components: [main]
+        signed_by: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF23C5A6CF475977595C89F51BA6932366A755776
+        state: present
+      when: python3_check is failed
+
+    - name: Install python3
+      become: yes
+      apt:
+        name: python3
+        state: present
+        update_cache: yes
+      when: python3_check is failed

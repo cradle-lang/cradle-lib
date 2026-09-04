@@ -1,0 +1,152 @@
+    - name: Update apt
+      become: yes
+      apt:
+        update_cache: yes
+
+    - name: Install Bind9
+      become: yes
+      apt:
+        name: bind9
+        state: present
+
+    - name: Configure Bind9 zone
+      become: yes
+      copy:
+        dest: /etc/bind/named.conf.local
+        content: |
+          zone "deadbeef.com" {
+              type master;
+              file "/etc/bind/db.deadbeef.com";
+          };
+
+    - name: Create DNS zone file
+      become: yes
+      copy:
+        dest: /etc/bind/db.deadbeef.com
+        content: |
+          $TTL    604800
+          @       IN      SOA     ns1.deadbeef.com. admin.deadbeef.com. (
+                                  2         ; Serial
+                                  604800    ; Refresh
+                                  86400     ; Retry
+                                  2419200   ; Expire
+                                  604800 )  ; Negative Cache TTL
+          @       IN      NS      ns1.deadbeef.com.
+          @       IN      A       {% raw %}{{ ansible_host }}{% endraw %}
+          @       IN      MX      10 mail.deadbeef.com.
+          ns1     IN      A       {% raw %}{{ ansible_host }}{% endraw %}
+          mail    IN      A       {% raw %}{{ ansible_host }}{% endraw %}
+
+    - name: Restart Bind9
+      become: yes
+      service:
+        name: bind9
+        state: restarted
+        enabled: yes
+
+    - name: Install Postfix and Dovecot
+      become: yes
+      apt:
+        name:
+          - postfix
+          - dovecot-core
+          - dovecot-imapd
+          - dovecot-pop3d
+          - dovecot-ldap
+          - dovecot-lmtpd
+        state: present
+
+    - name: Configure Postfix main.cf
+      become: yes
+      copy:
+        dest: /etc/postfix/main.cf
+        content: |
+          myhostname = mail.deadbeef.com
+          mydomain = deadbeef.com
+          myorigin = deadbeef.com
+          inet_interfaces = all
+          inet_protocols = ipv4
+          mydestination = mail.deadbeef.com, localhost.deadbeef.com, localhost, deadbeef.com
+          relay_domains =
+          home_mailbox = Maildir/
+          smtpd_banner = mail.deadbeef.com ESMTP $mail_name (Ubuntu)
+          biff = no
+          append_dot_mydomain = no
+          readme_directory = no
+          smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+          smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+          smtpd_use_tls=yes
+          smtp_tls_security_level=may
+          smtpd_tls_auth_only = no
+          smtp_tls_note_starttls_offer = yes
+          smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
+          smtpd_recipient_restrictions = permit_mynetworks permit_sasl_authenticated reject_unauth_destination
+          smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+          smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+          smtpd_tls_security_level=may
+          smtpd_tls_loglevel=1
+          smtpd_tls_received_header=yes
+          smtpd_tls_session_cache_timeout=3600s
+          tls_random_source=dev:/dev/urandom
+          smtpd_sasl_auth_enable = yes
+          smtpd_sasl_type = dovecot
+          smtpd_sasl_path = private/auth
+          smtpd_sasl_local_domain = deadbeef.com
+          broken_sasl_auth_clients = yes
+
+    - name: Create Dovecot configuration file
+      become: yes
+      copy:
+        dest: /etc/dovecot/dovecot.conf
+        content: |
+          protocols = imap pop3 lmtp
+          disable_plaintext_auth = yes
+          mail_privileged_group = mail
+          mail_location = maildir:~/Maildir
+          userdb {
+            driver = passwd
+          }
+          passdb {
+            driver = pam
+          }
+          service auth {
+            unix_listener /var/spool/postfix/private/auth {
+              mode = 0660
+              user = postfix
+              group = postfix
+            }
+          }
+          ssl = yes
+          ssl_cert = </etc/ssl/certs/ssl-cert-snakeoil.pem
+          ssl_key = </etc/ssl/private/ssl-cert-snakeoil.key
+
+    - name: Copy Dovecot 20-lmtp.conf file
+      become: yes
+      copy:
+        dest: /etc/dovecot/conf.d/20-lmtp.conf
+        content: |
+          service lmtp {
+            unix_listener /var/spool/postfix/private/dovecot-lmtp {
+              mode = 0600
+              user = postfix
+              group = postfix
+            }
+          }
+
+          protocol lmtp {
+            mail_plugins = $mail_plugins sieve
+          }
+
+    - name: Restart Postfix
+      become: yes
+      service:
+        name: postfix
+        state: restarted
+        enabled: yes
+
+    - name: Restart Dovecot
+      become: yes
+      service:
+        name: dovecot
+        state: restarted
+        enabled: yes

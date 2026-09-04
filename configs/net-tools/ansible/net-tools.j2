@@ -1,0 +1,10 @@
+    - name: Update apt
+      become: yes
+      apt:
+        update_cache: yes
+
+    - name: Install net-tools
+      become: yes
+      apt:
+        name: net-tools
+        state: present

@@ -1,0 +1,9 @@
+    - name: Ensure Chocolatey is installed
+      win_chocolatey:
+        name: chocolatey
+        state: present
+
+    - name: Install Python
+      win_chocolatey:
+        name: python
+        state: present

@@ -1,0 +1,14 @@
+[Unit]
+Description=Sysdig Monitoring
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/sysdig -w /var/log/sysdig.scap
+# ExecStart=/etc/systemd/system/linux_sysdig.sh
+ExecStop=/bin/kill $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,53 @@
+    - name: Install Docker dependencies
+      become: yes
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: yes
+
+    - name: Ensure python3-debian for deb822 repositories
+      become: yes
+      apt:
+        name: python3-debian
+        state: present
+
+    - name: Add Docker repository
+      become: yes
+      ansible.builtin.deb822_repository:
+        name: docker
+        types: [deb]
+        uris: [https://download.docker.com/linux/ubuntu]
+        suites: ["{% raw %}{{ ansible_facts['distribution_release'] }}{% endraw %}"]
+        components: [stable]
+        architectures: [amd64]
+        signed_by: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Install Docker
+      become: yes
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+
+    - name: Add vagrant to docker group
+      become: yes
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+
+    - name: Start Docker
+      become: yes
+      service:
+        name: docker
+        state: started
+        enabled: yes

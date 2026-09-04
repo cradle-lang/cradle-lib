@@ -1,0 +1,47 @@
+    - name: Copy Sysmon zip
+      copy:
+        src: {{ config_asset_dir }}/Sysmon.zip
+        dest: C:\Users\vagrant
+
+    - name: Copy sysmon config
+      copy:
+        src: {{ config_asset_dir }}/the-sysmon-config.xml
+        dest: C:\Users\vagrant\sysmon_config.xml
+
+    - name: Unzip Sysmon
+      community.windows.win_unzip:
+        src: C:\Users\vagrant\Sysmon.zip
+        dest: C:\Users\vagrant\
+
+    - name: Check whether the Sysmon service already exists
+      # Registry probe, NOT `sc query`: this deployment's Sysmon.zip ships
+      # the unified binary, which registers the service as "Sysmon" (the
+      # Sysmon64 name only appears with the split 64-bit build), and the TLO
+      # credservice_bait hardening additionally denies SCM calls for
+      # non-SYSTEM callers. Accept either service name.
+      win_shell: if ((Test-Path 'HKLM:\SYSTEM\CurrentControlSet\Services\Sysmon64') -or (Test-Path 'HKLM:\SYSTEM\CurrentControlSet\Services\Sysmon')) { exit 0 } else { exit 1 }
+      register: sysmon_svc
+      failed_when: false
+      changed_when: false
+
+    - name: Install Sysmon
+      win_command: sysmon -accepteula -i C:\Users\vagrant\sysmon_config.xml
+      args:
+        chdir: C:\Users\vagrant
+      register: sysmon_install
+      failed_when: sysmon_install.rc != 0 and 'already registered' not in sysmon_install.stdout
+      changed_when: sysmon_install.rc == 0
+      when: sysmon_svc.rc != 0
+
+    # Best-effort config refresh on replays: on hosts where provisioning
+    # stripped SC_MANAGER_CREATE_SERVICE from the SCM SDDL (e.g. the TLO
+    # credservice_bait hardening), even a config update can be denied; the
+    # staged config is identical between replays, so tolerate that.
+    - name: Update the Sysmon configuration (service already installed)
+      win_command: sysmon -c C:\Users\vagrant\sysmon_config.xml
+      args:
+        chdir: C:\Users\vagrant
+      register: sysmon_update
+      changed_when: sysmon_update.rc == 0
+      failed_when: false
+      when: sysmon_svc.rc == 0

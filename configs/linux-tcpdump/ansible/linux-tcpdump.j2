@@ -1,0 +1,27 @@
+    - name: Copy tcpdump script
+      become: yes
+      copy:
+        src: {{ config_asset_dir }}/linux_tcpdump.sh
+        dest: /etc/systemd/system/linux_tcpdump.sh
+        mode: "0771"
+
+    - name: Copy tcpdump service
+      become: yes
+      copy:
+        src: {{ config_asset_dir }}/tcpdump.service
+        dest: /etc/systemd/system/tcpdump.service
+
+    - name: Configure tcpdump capture paths
+      become: yes
+      replace:
+        path: /etc/systemd/system/linux_tcpdump.sh
+        regexp: '/home/[^/"]+'
+        replace: '{{ linux_guest_home_dir }}'
+
+    - name: Start tcpdump service
+      become: yes
+      service:
+        name: tcpdump
+        daemon_reload: yes
+        state: started
+        enabled: yes

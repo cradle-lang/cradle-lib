@@ -1,0 +1,21 @@
+    - name: Update apt
+      become: yes
+      apt:
+        update_cache: yes
+
+    - name: Install attack tools
+      become: yes
+      apt:
+        name:
+          - nmap
+          - netcat
+          - curl
+          - wget
+          - python3
+          - python3-pip
+        state: present
+
+    - name: Install Flask
+      become: yes
+      pip:
+        name: flask

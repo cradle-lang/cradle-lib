@@ -1,0 +1,21 @@
+    - name: Set temporary DNS resolvers
+      become: yes
+      copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 8.8.8.8
+          nameserver 1.1.1.1
+
+    - name: Install Bind9
+      become: yes
+      apt:
+        name: bind9
+        state: present
+        update_cache: yes
+
+    - name: Restart Bind9
+      become: yes
+      service:
+        name: bind9
+        state: restarted
+        enabled: yes

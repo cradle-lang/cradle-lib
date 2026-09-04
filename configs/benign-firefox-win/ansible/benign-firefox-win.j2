@@ -1,0 +1,9 @@
+    - name: Install Firefox
+      win_shell: |
+        $firefoxUrl = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
+        $installerPath = "$env:TEMP\FirefoxInstaller.exe"
+        Invoke-WebRequest -Uri $firefoxUrl -OutFile $installerPath
+        Start-Process -FilePath $installerPath -ArgumentList "/silent" -Wait
+        Remove-Item $installerPath
+      args:
+        creates: 'C:\Program Files\Mozilla Firefox\firefox.exe'

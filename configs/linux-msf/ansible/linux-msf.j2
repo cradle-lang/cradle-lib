@@ -1,0 +1,4 @@
+    - name: Install Metasploit Framework
+      shell: curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall
+      args:
+        creates: /usr/bin/msfconsole

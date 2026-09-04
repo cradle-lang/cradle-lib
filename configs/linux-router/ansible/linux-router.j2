@@ -1,0 +1,33 @@
+    - name: Enable IP forwarding
+      become: yes
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: "1"
+        state: present
+
+    - name: Check whether the local-traffic masquerade exemption already exists
+      become: yes
+      ansible.builtin.command: iptables -t nat -C POSTROUTING -m addrtype --src-type LOCAL -j RETURN
+      register: cxc_masquerade_exemption_check
+      failed_when: false
+      changed_when: false
+
+    # ansible.builtin.iptables' src_type/dst_type parameters (the normal way
+    # to express -m addrtype --src-type) aren't supported by every
+    # ansible-core version this runs against, so this is a raw iptables
+    # invocation instead. -I (insert at chain position 1) rather than -A
+    # (append) so this rule always ends up ahead of the masquerade rule
+    # below regardless of task order or what a prior provisioning run
+    # already added to the chain.
+    - name: Skip masquerade for the router's own locally-originated traffic
+      become: yes
+      ansible.builtin.command: iptables -t nat -I POSTROUTING -m addrtype --src-type LOCAL -j RETURN
+      when: cxc_masquerade_exemption_check.rc != 0
+
+    - name: Enable NAT masquerade
+      become: yes
+      ansible.builtin.iptables:
+        table: nat
+        chain: POSTROUTING
+        jump: MASQUERADE
+        comment: Allow MASQUERADE for all subnets

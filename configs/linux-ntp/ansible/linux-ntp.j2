@@ -1,0 +1,21 @@
+    - name: Install Chrony
+      become: yes
+      apt:
+        name: chrony
+        state: present
+        update_cache: yes
+
+    - name: Configure Chrony NTP server
+      become: yes
+      copy:
+        dest: /etc/chrony/chrony.conf
+        content: |
+          pool 2.debian.pool.ntp.org iburst
+          allow all
+
+    - name: Restart Chrony
+      become: yes
+      service:
+        name: chrony
+        state: restarted
+        enabled: yes

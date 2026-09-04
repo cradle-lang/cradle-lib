@@ -1,0 +1,9 @@
+    - name: Ensure WinRM is enabled
+      win_feature:
+        name: WinRM
+        state: present
+
+    - name: Start WinRM service
+      win_service:
+        name: WinRM
+        state: started

@@ -1,0 +1,33 @@
+    - name: Install Samba
+      become: yes
+      apt:
+        name: samba
+        state: present
+
+    - name: Configure Samba share
+      become: yes
+      copy:
+        dest: /etc/samba/smb.conf
+        content: |
+          [global]
+             workgroup = WORKGROUP
+             security = user
+          [shared]
+             path = /srv/smb/shared
+             browseable = yes
+             writable = yes
+             guest ok = yes
+
+    - name: Create share directory
+      become: yes
+      file:
+        path: /srv/smb/shared
+        state: directory
+        mode: "0777"
+
+    - name: Restart Samba
+      become: yes
+      service:
+        name: smbd
+        state: restarted
+        enabled: yes

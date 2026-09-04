@@ -1,0 +1,19 @@
+    - name: Install auditd
+      become: yes
+      apt:
+        name: auditd
+        state: present
+        update_cache: yes
+
+    - name: Copy audit rules
+      become: yes
+      copy:
+        src: {{ config_asset_dir }}/audit.rules
+        dest: /etc/audit/rules.d/audit.rules
+
+    - name: Enable and restart auditd
+      become: yes
+      service:
+        name: auditd
+        state: restarted
+        enabled: yes

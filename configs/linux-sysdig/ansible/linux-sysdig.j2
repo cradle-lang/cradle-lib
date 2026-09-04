@@ -1,0 +1,25 @@
+    - name: Copy sysdig package
+      become: yes
+      copy:
+        src: {{ config_asset_dir }}/sysdig/sysdig.deb
+        dest: /tmp/sysdig.deb
+
+    - name: Install sysdig
+      become: yes
+      apt:
+        deb: /tmp/sysdig.deb
+        update_cache: yes
+
+    - name: Copy sysdig service
+      become: yes
+      copy:
+        src: {{ config_asset_dir }}/sysdig/sysdig.service
+        dest: /etc/systemd/system/sysdig.service
+
+    - name: Start sysdig service
+      become: yes
+      service:
+        name: sysdig
+        daemon_reload: yes
+        state: started
+        enabled: yes

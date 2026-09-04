@@ -1,0 +1,38 @@
+    - name: Copy PKTMON service zip
+      copy:
+        src: {{ config_asset_dir }}/pktmon-service.zip
+        dest: C:\Users\vagrant
+
+    - name: Check if PKTMON service exe is already deployed
+      win_stat:
+        path: C:\Users\vagrant\pktmon-service.exe
+      register: pktmon_exe_stat
+
+    - name: Unzip PKTMON service files
+      community.windows.win_unzip:
+        src: C:\Users\vagrant\pktmon-service.zip
+        dest: C:\Users\vagrant\
+      when: not pktmon_exe_stat.stat.exists
+
+    - name: Check whether the PKTMON service already exists
+      # Registry probe: sc create/open is access-denied for non-SYSTEM
+      # callers on hosts whose provisioning stripped SC_MANAGER_CREATE_
+      # SERVICE from the SCM SDDL (e.g. the TLO credservice_bait
+      # hardening), so probe the service key instead (same as Sysmon).
+      win_shell: if (Test-Path 'HKLM:\SYSTEM\CurrentControlSet\Services\PktmonService') { exit 0 } else { exit 1 }
+      register: pktmon_svc
+      failed_when: false
+      changed_when: false
+
+    - name: Create PKTMON service
+      win_command: sc create PktmonService binPath= "C:\Users\vagrant\pktmon-service.exe" start= auto
+      register: pktmon_create
+      failed_when: pktmon_create.rc != 0 and pktmon_create.rc != 1073
+      changed_when: pktmon_create.rc == 0
+      when: pktmon_svc.rc != 0
+
+    - name: Start PKTMON service
+      win_command: sc start PktmonService
+      register: pktmon_start
+      failed_when: pktmon_start.rc != 0 and pktmon_start.rc != 1056 and pktmon_start.rc != 5
+      changed_when: pktmon_start.rc == 0

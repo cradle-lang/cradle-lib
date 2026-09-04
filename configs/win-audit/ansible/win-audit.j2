@@ -1,0 +1,11 @@
+    - name: Configure Windows Audit Policy
+      win_command: auditpol /set /category:* /success:enable /failure:enable
+
+    - name: Configure advanced audit settings (Logon)
+      win_command: auditpol /set /subcategory:"Logon" /success:enable /failure:enable
+
+    - name: Configure advanced audit settings (Logoff)
+      win_command: auditpol /set /subcategory:"Logoff" /success:enable
+
+    - name: Configure advanced audit settings (Process Creation)
+      win_command: auditpol /set /subcategory:"Process Creation" /success:enable

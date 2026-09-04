@@ -1,0 +1,10 @@
+    - name: Create FinCore Systems Directory
+      win_file:
+        path: 'C:\Program Files\FinCore_Systems'
+        state: directory
+
+    - name: Deploy Fake Banking App
+      win_copy:
+        src: 'C:\Windows\System32\notepad.exe'
+        dest: 'C:\Program Files\FinCore_Systems\TellerClient_v4.exe'
+        remote_src: yes

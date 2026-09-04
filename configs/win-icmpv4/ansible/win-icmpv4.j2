@@ -1,0 +1,8 @@
+    - name: Allow ICMP v4
+      community.windows.win_firewall_rule:
+        name: Allow incoming ICMP echo request
+        enabled: yes
+        state: present
+        action: allow
+        direction: in
+        protocol: icmpv4
