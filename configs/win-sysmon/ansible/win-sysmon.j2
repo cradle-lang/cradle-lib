@@ -1,11 +1,11 @@
     - name: Copy Sysmon zip
       copy:
-        src: {{ config_asset_dir }}/Sysmon.zip
+        src: {{ config_asset_dir }}/files/Sysmon.zip
         dest: C:\Users\vagrant
 
     - name: Copy sysmon config
       copy:
-        src: {{ config_asset_dir }}/the-sysmon-config.xml
+        src: {{ config_asset_dir }}/files/the-sysmon-config.xml
         dest: C:\Users\vagrant\sysmon_config.xml
 
     - name: Unzip Sysmon
