@@ -12,7 +12,7 @@
         name: FTP
         localport: 21
         action: allow
-        direction: out
+        direction: in
         protocol: tcp
         state: present
         enabled: yes
@@ -22,7 +22,7 @@
         name: HTTP
         localport: 80
         action: allow
-        direction: out
+        direction: in
         protocol: tcp
         state: present
         enabled: yes
@@ -32,7 +32,7 @@
         name: HTTPS
         localport: 443
         action: allow
-        direction: out
+        direction: in
         protocol: tcp
         state: present
         enabled: yes
