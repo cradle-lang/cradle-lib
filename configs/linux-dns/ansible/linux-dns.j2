@@ -12,6 +12,7 @@
         name: bind9
         state: present
         update_cache: yes
+        cache_valid_time: 3600
 
     - name: Restart Bind9
       become: yes

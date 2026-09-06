@@ -9,6 +9,7 @@
           - lsb-release
         state: present
         update_cache: yes
+        cache_valid_time: 3600
 
     - name: Ensure python3-debian for deb822 repositories
       become: yes
@@ -37,6 +38,7 @@
           - containerd.io
         state: present
         update_cache: yes
+        cache_valid_time: 3600
 
     - name: Add vagrant to docker group
       become: yes
