@@ -1,14 +1,14 @@
     - name: Copy tcpdump script
       become: yes
       copy:
-        src: {{ config_asset_dir }}/linux_tcpdump.sh
+        src: {{ config_asset_dir }}/files/linux_tcpdump.sh
         dest: /etc/systemd/system/linux_tcpdump.sh
         mode: "0771"
 
     - name: Copy tcpdump service
       become: yes
       copy:
-        src: {{ config_asset_dir }}/tcpdump.service
+        src: {{ config_asset_dir }}/files/tcpdump.service
         dest: /etc/systemd/system/tcpdump.service
 
     - name: Configure tcpdump capture paths
