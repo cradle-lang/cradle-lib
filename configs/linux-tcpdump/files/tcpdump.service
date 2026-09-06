@@ -1,0 +1,13 @@
+[Unit]
+Description=Network Monitoring
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/etc/systemd/system/linux_tcpdump.sh
+ExecStop=/bin/kill $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
