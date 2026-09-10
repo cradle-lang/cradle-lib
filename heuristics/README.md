@@ -38,7 +38,7 @@ requires; it is the source of truth for cxc's `os()`/`config()` inference:
 ```json
 {
   "framework": "cve",
-  "value": "CVE-2021-41773-native",
+  "value": "CVE-2021-41773",
   "os": "ubuntu",
   "os_version": "20.04",
   "configs": ["linux-auditd"]
@@ -61,5 +61,5 @@ when they disagree. Implied configs are appended and deduplicated.
 
 | Framework | Description | Available Modules |
 |-----------|-------------|-------------------|
-| [`cve`](./cve) | Common Vulnerabilities and Exposures | `CVE-2021-41773-native`, `CVE-2021-42013-native`, `CVE-2021-44228`, `CVE-2024-1086` |
+| [`cve`](./cve) | Common Vulnerabilities and Exposures | `CVE-2021-41773`, `CVE-2021-42013`, `CVE-2021-44228`, `CVE-2024-1086` |
 | [`ttp`](./ttp) | MITRE ATT&CK Tactics, Techniques, and Procedures | `T1053.003`, `T1105` |
