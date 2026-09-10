@@ -17,8 +17,6 @@ In instance definitions:
 heuristic("ttp", "<technique-id>")
 ```
 
-To fetch via CLI:
-
-```bash
-cxc heuristics pull ttp <technique-id>
-```
+Each module carries a `manifest.json`. These techniques have no specific OS
+requirement (`"os": null`), so an instance must declare `os()` explicitly (or
+combine the TTP with a CVE heuristic that implies one).
