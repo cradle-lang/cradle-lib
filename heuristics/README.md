@@ -61,5 +61,5 @@ when they disagree. Implied configs are appended and deduplicated.
 
 | Framework | Description | Available Modules |
 |-----------|-------------|-------------------|
-| [`cve`](./cve) | Common Vulnerabilities and Exposures | `CVE-2017-15715`, `CVE-2018-7600`, `CVE-2019-14287`, `CVE-2019-11043`, `CVE-2021-41773`, `CVE-2021-42013`, `CVE-2021-4034`, `CVE-2021-3156`, `CVE-2021-44228`, `CVE-2022-0847`, `CVE-2024-1086` |
+| [`cve`](./cve) | Common Vulnerabilities and Exposures | `CVE-2017-15715`, `CVE-2017-7494`, `CVE-2018-7600`, `CVE-2019-14287`, `CVE-2019-10149`, `CVE-2019-11043`, `CVE-2020-1938`, `CVE-2021-41773`, `CVE-2021-42013`, `CVE-2021-4034`, `CVE-2021-3156`, `CVE-2021-44228`, `CVE-2022-0847`, `CVE-2024-1086` |
 | [`ttp`](./ttp) | MITRE ATT&CK Tactics, Techniques, and Procedures | `T1053.003`, `T1105` |

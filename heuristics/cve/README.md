@@ -15,6 +15,9 @@ a `manifest.json` declaring its implied `os()`/`config()` requirements.
 | [`CVE-2019-14287`](./CVE-2019-14287) | sudo runas user-ID bypass (`-u#-1` becomes root) | Native sudo 1.8.27 + sudoers rule | N/A |
 | [`CVE-2018-7600`](./CVE-2018-7600) | Drupalgeddon2 Form API RCE (Drupal 8.5.0) | Official drupal:8.5.0-apache container | Port `8080` |
 | [`CVE-2019-11043`](./CVE-2019-11043) | PHP-FPM/Nginx path-info buffer underflow RCE | nginx + php:7.2.10-fpm containers | Port `8080` |
+| [`CVE-2020-1938`](./CVE-2020-1938) | Apache Tomcat AJP ("Ghostcat") file read / inclusion | Native Tomcat 9.0.30 + systemd service | Ports `8080`, `8009` |
+| [`CVE-2017-7494`](./CVE-2017-7494) | Samba "SambaCry" shared-library load through a writable share | Pinned `vulhub/samba:4.6.3` container | Port `445` |
+| [`CVE-2019-10149`](./CVE-2019-10149) | Exim recipient-address expansion RCE ("Return of the WIZard") | Native Exim 4.91 build + systemd service | Port `25` |
 | [`CVE-2021-44228`](./CVE-2021-44228) | Log4Shell (Apache Log4j2 JNDI RCE) demo application | Docker container | Port `8042` |
 | [`CVE-2024-1086`](./CVE-2024-1086) | Linux kernel netfilter (nf_tables) use-after-free LPE | Version-gated kernel pin | N/A |
 | [`CVE-2021-4034`](./CVE-2021-4034) | PwnKit (`pkexec`) local privilege escalation | Pinned vulnerable package + built PoC | N/A |
