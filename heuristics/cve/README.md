@@ -11,6 +11,7 @@ a `manifest.json` declaring its implied `os()`/`config()` requirements.
 |--------|-------------|------------|---------|
 | [`CVE-2021-41773`](./CVE-2021-41773) | Apache HTTP Server 2.4.49 path traversal and file disclosure | Native build + systemd service | Port `8080` |
 | [`CVE-2021-42013`](./CVE-2021-42013) | Apache HTTP Server 2.4.50 path traversal (incomplete fix for CVE-2021-41773) | Native build + systemd service | Port `8080` |
+| [`CVE-2017-15715`](./CVE-2017-15715) | Apache HTTP Server 2.4.29 `<FilesMatch>` newline bypass to CGI execution | Native build + systemd service | Port `8080` |
 | [`CVE-2021-44228`](./CVE-2021-44228) | Log4Shell (Apache Log4j2 JNDI RCE) demo application | Docker container | Port `8042` |
 | [`CVE-2024-1086`](./CVE-2024-1086) | Linux kernel netfilter (nf_tables) use-after-free LPE | Version-gated kernel pin | N/A |
 | [`CVE-2021-4034`](./CVE-2021-4034) | PwnKit (`pkexec`) local privilege escalation | Pinned vulnerable package + built PoC | N/A |
