@@ -13,6 +13,7 @@ a `manifest.json` declaring its implied `os()`/`config()` requirements.
 | [`CVE-2021-42013`](./CVE-2021-42013) | Apache HTTP Server 2.4.50 path traversal (incomplete fix for CVE-2021-41773) | Native build + systemd service | Port `8080` |
 | [`CVE-2017-15715`](./CVE-2017-15715) | Apache HTTP Server 2.4.29 `<FilesMatch>` newline bypass to CGI execution | Native build + systemd service | Port `8080` |
 | [`CVE-2019-14287`](./CVE-2019-14287) | sudo runas user-ID bypass (`-u#-1` becomes root) | Native sudo 1.8.27 + sudoers rule | N/A |
+| [`CVE-2018-7600`](./CVE-2018-7600) | Drupalgeddon2 Form API RCE (Drupal 8.5.0) | Official drupal:8.5.0-apache container | Port `8080` |
 | [`CVE-2021-44228`](./CVE-2021-44228) | Log4Shell (Apache Log4j2 JNDI RCE) demo application | Docker container | Port `8042` |
 | [`CVE-2024-1086`](./CVE-2024-1086) | Linux kernel netfilter (nf_tables) use-after-free LPE | Version-gated kernel pin | N/A |
 | [`CVE-2021-4034`](./CVE-2021-4034) | PwnKit (`pkexec`) local privilege escalation | Pinned vulnerable package + built PoC | N/A |
