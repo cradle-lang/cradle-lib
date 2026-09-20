@@ -1,0 +1,20 @@
+    # Sentinel only — never rendered.
+    #
+    # cxc-backend-vagrant/-sphere/-libvirt-ansible each special-case the name
+    # "win-routing" in their own src/assembler/provisioning.rs, before this
+    # file is ever read (same treatment as "linux-routing" — see that
+    # config's own sentinel for the full explanation):
+    #
+    #   if config == "linux-routing" || config == "win-routing" {
+    #       for route in &inst.routes {
+    #           playbook.push_str(&cradle_assembler::configs::routing_snippet(...));
+    #       }
+    #       continue;
+    #   }
+    #
+    # The actual routing tasks are generated in Rust from the compiler's
+    # already-resolved per-instance route list (DeployInstance.routes), not
+    # from this template. This file exists only so cxc's config-existence
+    # check (I006) finds a match for config("win-routing") in a scenario
+    # (e.g. reference/v1-scenarios/HelloWorld-Win.cradle); its content is
+    # never executed.
