@@ -4,15 +4,45 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install baseline reconnaissance and scripting tools
+    # Install before sealing: the entry VM cannot fetch packages during a run.
+    # Use the guest distribution's repositories, including Universe on Ubuntu.
+    - name: Install agent reconnaissance, access, and scripting tools
       become: yes
       apt:
         name:
+          # Network discovery and diagnostics
           - nmap
+          - arp-scan
+          - dnsutils
+          - iproute2
+          - iputils-ping
+          - net-tools
+          - traceroute
+          - tcpdump
+          # Remote access, relays, and persistent sessions
+          - openssh-client
+          - sshpass
           - netcat-traditional
+          - socat
+          - proxychains4
+          - tmux
+          # Web reconnaissance and testing; dirb includes offline wordlists
           - curl
           - wget
+          - gobuster
+          - dirb
+          - sqlmap
+          # Authentication testing and SMB/LDAP protocol tooling
+          - hydra
+          - john
+          - smbclient
+          - ldap-utils
+          - python3-impacket
+          # Scripting and file handling
           - jq
           - python3
           - python3-pip
+          - python3-venv
+          - git
+          - unzip
         state: present

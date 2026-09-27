@@ -131,5 +131,30 @@ assembler — they exist as configs on an instance, but there is no
 | Config | Description |
 |--------|-------------|
 | [`attacker`](./attacker) | Installs a baseline attacker toolkit (nmap, netcat, curl, wget, python3/pip, Flask) |
-| [`agent-entry`](./agent-entry) | Marks the instance an autonomous AI agent starts from — installs baseline recon/scripting tools (nmap, netcat, curl, wget, jq, python3/pip), no Flask. Distinct from `attacker`: a scenario's own hand-authored attacker VM may or may not be where an agent is meant to start; this config is the explicit, unambiguous signal for that, checked by name/config rather than guessed |
+| [`agent-entry`](./agent-entry) | Marks the instance an autonomous AI agent starts from — installs reconnaissance, SSH/tunnelling (including sshpass), web/authentication testing, SMB/LDAP/Impacket, and scripting tools (see below). Distinct from `attacker`: a scenario's own hand-authored attacker VM may or may not be where an agent is meant to start; this config is the explicit, unambiguous signal for that, checked by name/config rather than guessed |
 | [`linux-msf`](./linux-msf) | Installs the Metasploit Framework |
+
+### Agent entry toolkit
+
+`config("agent-entry")` uses the guest's APT repositories; it does not add Kali
+repositories or require a Kali image. Ubuntu images need Universe enabled.
+Packages are installed during provisioning, before the range is sealed:
+
+| Purpose | Packages |
+|---------|----------|
+| Discovery and diagnostics | nmap, arp-scan, dnsutils, iproute2, iputils-ping, net-tools, traceroute, tcpdump |
+| Remote access and relays | openssh-client, sshpass, netcat-traditional, socat, proxychains4, tmux |
+| Web testing | curl, wget, gobuster, dirb (including its offline wordlists), sqlmap |
+| Authentication and protocols | hydra, john, smbclient, ldap-utils, python3-impacket |
+| Scripting and files | jq, python3, python3-pip, python3-venv, git, unzip |
+
+DIRB's wordlists are under `/usr/share/dirb/wordlists`. Distribution-packaged
+Impacket script names and locations vary; use `dpkg -L python3-impacket` to
+locate them. No proxy, tunnel, listener, or target credentials are configured
+by this module. Tool versions follow the guest distribution's repositories;
+use the same provisioned snapshot for compared runs.
+
+Updating this config does not install tools into existing guests. Refresh the
+content library and provision a fresh range before sealing and taking its
+baseline snapshot. Extra Python dependencies must also be installed before
+sealing; having pip available does not provide internet access during a run.
