@@ -47,9 +47,26 @@
           - unzip
         state: present
 
-    # Same install linux-msf uses on its own; folded in here so every
-    # agent-entry instance gets it without a separate config() line.
+    # downloads.metasploit.com is blocked on this network (TLS ClientHello
+    # gets reset — confirmed from swl), so the omnibus installer's own
+    # apt-repo fetch can never succeed here. Staged once as a fixed file
+    # beside this config on the controller instead, copied to the guest over
+    # the same Ansible/SSH channel (no internet needed), then installed via
+    # the local-deb apt path so dependencies still resolve from the guest's
+    # own already-working repos.
+    - name: Copy Metasploit Framework package to the guest
+      copy:
+        src: /mnt/hdd1/amish/cradle-lib/configs/agent-entry/metasploit-framework_6.5.3~20260818061200~1rapid7-1_amd64.deb
+        dest: /tmp/metasploit-framework_6.5.3_amd64.deb
+        mode: "0644"
+
     - name: Install Metasploit Framework
-      shell: curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall
-      args:
-        creates: /usr/bin/msfconsole
+      become: yes
+      apt:
+        deb: /tmp/metasploit-framework_6.5.3_amd64.deb
+
+    - name: Remove the staged Metasploit package from the guest
+      become: yes
+      file:
+        path: /tmp/metasploit-framework_6.5.3_amd64.deb
+        state: absent

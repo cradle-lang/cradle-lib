@@ -1,1 +1,4 @@
-# nothing generated here yet
+# Staged on the deploy host's filesystem only, referenced by absolute
+# controller path from agent-entry.j2 — never meant to enter git history.
+configs/agent-entry/*.deb
+configs/agent-entry/*.rpm
