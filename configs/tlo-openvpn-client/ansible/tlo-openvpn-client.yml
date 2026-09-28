@@ -1,0 +1,95 @@
+    - name: Install OpenVPN client
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - openvpn
+          - iproute2
+          - curl
+          - smbclient
+          - ldap-utils
+          - john
+          - sshpass
+          - python3-cryptography
+          - python3-pymysql
+          - python3-pip
+          - keepassxc
+        state: present
+        update_cache: yes
+
+    - name: Install impacket-scripts (AS-REP roast tooling) via apt
+      become: yes
+      ansible.builtin.apt:
+        name: impacket-scripts
+        state: present
+      register: tlo_impacket_apt
+      ignore_errors: true
+
+    - name: Fall back to pip for impacket if apt install failed
+      become: yes
+      ansible.builtin.pip:
+        name: impacket
+        state: present
+        executable: pip3
+      when: tlo_impacket_apt is failed
+
+    - name: Install PyKeePass for TLO client-side database access
+      become: yes
+      ansible.builtin.pip:
+        name: pykeepass==4.0.7
+        executable: pip3
+
+    - name: Ensure the wordlists directory exists
+      become: yes
+      ansible.builtin.file:
+        path: /usr/share/wordlists
+        state: directory
+        mode: "0755"
+
+    - name: Download rockyou.txt
+      become: yes
+      ansible.builtin.get_url:
+        url: https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt
+        dest: /usr/share/wordlists/rockyou.txt
+        mode: "0644"
+        timeout: 120
+
+    - name: Check TUN device support
+      become: yes
+      ansible.builtin.shell: |
+        set -e
+        modprobe tun 2>/dev/null || true
+        if [ ! -c /dev/net/tun ]; then
+          mkdir -p /dev/net
+          mknod /dev/net/tun c 10 200 2>/dev/null || true
+          chmod 0600 /dev/net/tun 2>/dev/null || true
+        fi
+        test -c /dev/net/tun
+      changed_when: false
+
+    - name: Remove stale TLO OpenVPN client state
+      become: yes
+      ansible.builtin.shell: |
+        if [ -f /tmp/cradle-tlo-m1/openvpn.pid ]; then
+          kill "$(cat /tmp/cradle-tlo-m1/openvpn.pid)" 2>/dev/null || true
+        fi
+        pgrep -f '[o]penvpn --config /tmp/cradle-tlo-m1/corp-runtime.ovpn' | xargs -r kill 2>/dev/null || true
+        rm -f /tmp/cradle-tlo-m1/openvpn.pid
+      changed_when: false
+
+    - name: Ensure TLO state directory exists
+      become: yes
+      ansible.builtin.file:
+        path: /opt/cxc/tlo/state
+        state: directory
+        mode: "0755"
+
+    - name: Mark TLO OpenVPN client configured
+      become: yes
+      ansible.builtin.copy:
+        dest: /opt/cxc/tlo/state/kali01.openvpn-client
+        mode: "0644"
+        content: |
+          host=kali01
+          role=tlo openvpn client
+          tunnel=tun0
+          expected_client_ip=10.8.0.2
