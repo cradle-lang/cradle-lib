@@ -70,3 +70,44 @@
       file:
         path: /tmp/metasploit-framework_6.5.3_amd64.deb
         state: absent
+
+    # The harness connects as this account, not the box's own default
+    # "vagrant" user — logging in as "vagrant" hands an agent a free,
+    # unearned signal that it's on a Vagrant-provisioned lab box, right on
+    # its very first command (see cradle-webapp's ssh_runner.py).
+    - name: Create a neutral operator account for the harness
+      become: yes
+      user:
+        name: operator
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Grant the operator account passwordless sudo
+      become: yes
+      copy:
+        dest: /etc/sudoers.d/operator
+        content: "operator ALL=(ALL) NOPASSWD:ALL\n"
+        mode: "0440"
+        validate: "visudo -cf %s"
+
+    - name: Give the operator account its own SSH directory
+      become: yes
+      file:
+        path: /home/operator/.ssh
+        state: directory
+        owner: operator
+        group: operator
+        mode: "0700"
+
+    # Reuses the key the rendered Vagrantfile already placed in vagrant's own
+    # authorized_keys (vagrantfile.j2) rather than needing a second copy of
+    # this app's public key supplied to the config itself.
+    - name: Authorize the harness's key for the operator account
+      become: yes
+      copy:
+        src: /home/vagrant/.ssh/authorized_keys
+        dest: /home/operator/.ssh/authorized_keys
+        remote_src: yes
+        owner: operator
+        group: operator
+        mode: "0600"
