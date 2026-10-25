@@ -9,7 +9,7 @@
     - name: Copy audit rules
       become: yes
       copy:
-        src: {{ config_asset_dir }}/files/audit.rules
+        src: "{{ config_asset_dir }}/files/audit.rules"
         dest: /etc/audit/rules.d/audit.rules
 
     - name: Enable and restart auditd
