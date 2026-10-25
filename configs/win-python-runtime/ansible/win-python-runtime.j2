@@ -1,0 +1,36 @@
+    - name: Create Cradle CXC Windows runtime directory
+      ansible.windows.win_file:
+        path: C:\ProgramData\cxc
+        state: directory
+
+    - name: Copy shared Windows Python runtime archive
+      ansible.windows.win_copy:
+        src: "{{ config_asset_dir }}/files/winpython-3.10.11-amd64.zip"
+        dest: C:\ProgramData\cxc\winpython-3.10.11-amd64.zip
+
+    - name: Copy shared Windows Python runtime checksum
+      ansible.windows.win_copy:
+        src: "{{ config_asset_dir }}/files/winpython-3.10.11-amd64.zip.sha256"
+        dest: C:\ProgramData\cxc\winpython-3.10.11-amd64.zip.sha256
+
+    - name: Verify shared Windows Python runtime archive
+      ansible.windows.win_shell: |
+        $expected = ((Get-Content -Raw "C:\ProgramData\cxc\winpython-3.10.11-amd64.zip.sha256").Trim() -split '\s+')[0]
+        $actual = (Get-FileHash -Algorithm SHA256 "C:\ProgramData\cxc\winpython-3.10.11-amd64.zip").Hash.ToLower()
+        if ($actual -ne $expected.ToLower()) {
+          throw "Windows Python runtime archive checksum mismatch"
+        }
+
+    - name: Extract shared Windows Python runtime
+      ansible.windows.win_shell: |
+        $dest = "C:\ProgramData\cxc\python"
+        if (-not (Test-Path -LiteralPath (Join-Path $dest "python.exe"))) {
+          New-Item -ItemType Directory -Force $dest | Out-Null
+          Expand-Archive -LiteralPath "C:\ProgramData\cxc\winpython-3.10.11-amd64.zip" -DestinationPath $dest -Force
+        }
+
+    - name: Verify shared Windows Python runtime
+      ansible.windows.win_command:
+        argv:
+          - C:\ProgramData\cxc\python\python.exe
+          - --version

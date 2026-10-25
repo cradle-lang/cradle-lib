@@ -1,0 +1,8 @@
+    - name: Install wxPython on Windows
+      ansible.windows.win_shell: |
+        C:\ProgramData\cxc\python\python.exe -m pip install --no-input wxPython==4.2.5
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        New-Item -ItemType Directory -Force C:\ProgramData\cxc | Out-Null
+        Set-Content C:\ProgramData\cxc\python-wxpython.installed "wxPython==4.2.5"
+      args:
+        creates: C:\ProgramData\cxc\python-wxpython.installed

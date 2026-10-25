@@ -1,0 +1,5 @@
+    - name: Install InfluxDB Python client
+      become: yes
+      ansible.builtin.pip:
+        name: influxdb==5.3.0
+        state: present

@@ -1,0 +1,8 @@
+    - name: Install InfluxDB Python client on Windows
+      ansible.windows.win_shell: |
+        C:\ProgramData\cxc\python\python.exe -m pip install --no-input influxdb==5.3.2
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        New-Item -ItemType Directory -Force C:\ProgramData\cxc | Out-Null
+        Set-Content C:\ProgramData\cxc\python-influxdb.installed "influxdb==5.3.2"
+      args:
+        creates: C:\ProgramData\cxc\python-influxdb.installed

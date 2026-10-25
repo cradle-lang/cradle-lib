@@ -1,7 +1,41 @@
-    - name: Install python3-pip
+    - name: Check whether pip is already available
+      ansible.builtin.command: python3 -m pip --version
+      register: cxc_pip_check
+      failed_when: false
+      changed_when: false
+
+    - name: Install python3-pip from APT
       become: yes
-      apt:
+      ansible.builtin.apt:
         name: python3-pip
         state: present
         update_cache: yes
         cache_valid_time: 3600
+      register: cxc_pip_apt
+      failed_when: false
+      when: cxc_pip_check.rc != 0
+
+    - name: Bootstrap pip from the configured package index
+      become: yes
+      ansible.builtin.shell: |
+        set -eu
+        index_url="$(awk -F '=' '/^[[:space:]]*index-url[[:space:]]*=/{gsub(/[[:space:]]/, "", $2); print $2; exit}' /etc/pip.conf)"
+        trusted_host="$(awk -F '=' '/^[[:space:]]*trusted-host[[:space:]]*=/{gsub(/[[:space:]]/, "", $2); print $2; exit}' /etc/pip.conf)"
+        test -n "$index_url"
+        wheel_url="${index_url%/}/pip/pip-24.0-py3-none-any.whl"
+        curl -fsSL "$wheel_url" -o /tmp/cxc-pip.whl
+        pip_args="--index-url $index_url"
+        if [ -n "$trusted_host" ]; then
+          pip_args="$pip_args --trusted-host $trusted_host"
+        fi
+        python3 /tmp/cxc-pip.whl/pip install $pip_args pip
+        rm -f /tmp/cxc-pip.whl
+      args:
+        creates: /usr/local/bin/pip3
+      when:
+        - cxc_pip_check.rc != 0
+        - cxc_pip_apt.rc | default(1) != 0
+
+    - name: Verify pip installation
+      ansible.builtin.command: python3 -m pip --version
+      changed_when: false

@@ -1,0 +1,5 @@
+    - name: Install pyModbusTCP
+      become: yes
+      ansible.builtin.pip:
+        name: pyModbusTCP==0.2.0
+        state: present

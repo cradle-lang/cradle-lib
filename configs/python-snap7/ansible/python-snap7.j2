@@ -1,0 +1,5 @@
+    - name: Install python-snap7
+      become: yes
+      ansible.builtin.pip:
+        name: python-snap7==1.3
+        state: present

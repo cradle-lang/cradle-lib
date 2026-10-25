@@ -27,10 +27,15 @@ configs/
 
 Unlike heuristics, configs carry no `manifest.json` — a config is always
 exactly what's named in `config()`, with nothing implied about `os()` or
-other configs. Only five configs currently ship a `files/` directory
-(`linux-auditd`, `linux-sysdig`, `linux-tcpdump`, `win-pktmon`, `win-sysmon`)
-— the rest install everything they need directly through the package
-manager, with no extra assets to stage.
+other configs. Some configs ship a `files/` directory for binaries or other
+assets that package managers cannot provide; the rest install everything they
+need through package managers and require no extra assets.
+
+The `python-*-` dependency configs invoke `pip` and expect the target guest to
+have a usable package index. In an isolated OpenStack experiment, configure
+the backend's `pip_index_url` (and HTTP `pip_trusted_host` when applicable)
+instead of adding separate wheel assets merely because the range has no
+general Internet egress.
 
 ## Legacy Aliases
 
@@ -77,6 +82,9 @@ assembler — they exist as configs on an instance, but there is no
 | [`linux-vsftpd`](./linux-vsftpd) | Installs and configures vsftpd (FTP server) |
 | [`net-tools`](./net-tools) | Installs the `net-tools` package (`ifconfig`, `netstat`, ...) |
 | [`python3-pip`](./python3-pip) | Installs python3-pip |
+| [`python-modbus-tcp`](./python-modbus-tcp) | Installs the pinned pyModbusTCP library |
+| [`python-influxdb`](./python-influxdb) | Installs the pinned InfluxDB Python client |
+| [`python-snap7`](./python-snap7) | Installs the pinned python-snap7 library |
 
 ### Linux — observability
 
@@ -105,7 +113,12 @@ assembler — they exist as configs on an instance, but there is no
 | [`win-nodejs`](./win-nodejs) | Installs Node.js |
 | [`win-pyenv`](./win-pyenv) | Installs pyenv-win and a Python version through it |
 | [`win-python`](./win-python) | Installs Python via Chocolatey |
+| [`win-python-runtime`](./win-python-runtime) | Extracts a shared Python 3.10 runtime under `C:\ProgramData\cxc` |
 | [`win-winrar`](./win-winrar) | Installs WinRAR |
+| [`python-modbus-tcp-win`](./python-modbus-tcp-win) | Installs pyModbusTCP into the shared Windows runtime |
+| [`python-influxdb-win`](./python-influxdb-win) | Installs the InfluxDB client into the shared Windows runtime |
+| [`python-snap7-win`](./python-snap7-win) | Installs python-snap7 into the shared Windows runtime |
+| [`python-wxpython-win`](./python-wxpython-win) | Installs wxPython into the shared Windows runtime |
 
 ### Windows — observability
 
