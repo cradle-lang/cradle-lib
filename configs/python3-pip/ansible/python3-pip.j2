@@ -15,6 +15,13 @@
       failed_when: false
       when: cxc_pip_check.rc != 0
 
+    - name: Re-check whether pip is available after APT
+      ansible.builtin.command: python3 -m pip --version
+      register: cxc_pip_after_apt
+      failed_when: false
+      changed_when: false
+      when: cxc_pip_check.rc != 0
+
     - name: Bootstrap pip from the configured package index
       become: yes
       ansible.builtin.shell: |
@@ -34,7 +41,7 @@
         creates: /usr/local/bin/pip3
       when:
         - cxc_pip_check.rc != 0
-        - cxc_pip_apt.rc | default(1) != 0
+        - cxc_pip_after_apt.rc | default(1) != 0
 
     - name: Verify pip installation
       ansible.builtin.command: python3 -m pip --version
