@@ -1,0 +1,123 @@
+{% raw %}
+    - name: Require explicit management identity and an observer public key
+      ansible.builtin.assert:
+        that:
+          - cradle_marker_management_addresses is defined
+          - inventory_hostname in cradle_marker_management_addresses
+          - cradle_marker_management_addresses[inventory_hostname] in (ansible_all_ipv4_addresses + ansible_all_ipv6_addresses)
+          - cradle_marker_observer_public_key is defined
+          - cradle_marker_observer_public_key is match('^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp256) [A-Za-z0-9+/=]+( [^\r\n]*)?$')
+          - cradle_marker_observer_source is defined
+          - cradle_marker_observer_source is match('^[0-9a-fA-F.:/]+$')
+        fail_msg: Supply explicit management addresses, controller source CIDR and a public key using trusted Ansible variables before sealing.
+
+    - name: Install the marker observer prerequisites before sealing
+      become: yes
+      ansible.builtin.apt:
+        name: [python3, sudo, openssh-server]
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Prepare the optional user marker directory
+      become: yes
+      ansible.builtin.file:
+        path: /opt/cradle-proof
+        state: directory
+        owner: root
+        group: root
+        mode: '1777'
+        follow: false
+
+    - name: Create a dedicated password-disabled observer
+      become: yes
+      ansible.builtin.user:
+        name: cradle-observer
+        shell: /bin/sh
+        create_home: yes
+        password_lock: yes
+        groups: ''
+        append: false
+
+    - name: Protect the observer home and SSH configuration from guest users
+      become: yes
+      ansible.builtin.file:
+        path: '{{ item }}'
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      loop: [/home/cradle-observer, /home/cradle-observer/.ssh, /usr/local/libexec]
+
+    - name: Install the fixed marker reader and restricted SSH dispatcher
+      become: yes
+      ansible.builtin.copy:
+{% endraw %}
+        src: '{{ config_asset_dir }}/files/{% raw %}{{ item.source }}'
+{% endraw %}
+{% raw %}
+        dest: '{{ item.destination }}'
+        owner: root
+        group: root
+        mode: '0755'
+      loop:
+        - {source: marker-reader.py, destination: /usr/local/libexec/cradle-marker-reader}
+        - {source: observer-login.py, destination: /usr/local/libexec/cradle-marker-observer-login}
+
+    - name: Pin the observer management address
+      become: yes
+      ansible.builtin.copy:
+        content: '{{ {"management_address": cradle_marker_management_addresses[inventory_hostname]} | to_json }}'
+        dest: /etc/cradle-marker-observer.json
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Authorize only the selected key from the controller
+      become: yes
+      ansible.builtin.copy:
+        content: 'restrict,from="{{ cradle_marker_observer_source }}",command="/usr/local/libexec/cradle-marker-observer-login" {{ cradle_marker_observer_public_key }}'
+        dest: /home/cradle-observer/.ssh/authorized_keys
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Permit only the installed validating marker reader through sudo
+      become: yes
+      ansible.builtin.copy:
+        content: |
+          cradle-observer ALL=(root) NOPASSWD: /usr/local/libexec/cradle-marker-reader *
+        dest: /etc/sudoers.d/cradle-marker-observer
+        owner: root
+        group: root
+        mode: '0440'
+        validate: /usr/sbin/visudo -cf %s
+
+    - name: Restrict all SSH authentication for the observer account
+      become: yes
+      ansible.builtin.blockinfile:
+        path: /etc/ssh/sshd_config
+        marker: '# {mark} CRADLE MARKER OBSERVER'
+        block: |
+          Match User cradle-observer
+              PubkeyAuthentication yes
+              AuthenticationMethods publickey
+              PasswordAuthentication no
+              KbdInteractiveAuthentication no
+              AllowTcpForwarding no
+              AllowAgentForwarding no
+              PermitTTY no
+              X11Forwarding no
+              PermitTunnel no
+              ForceCommand /usr/local/libexec/cradle-marker-observer-login
+          Match all
+        validate: /usr/sbin/sshd -t -f %s
+      register: cradle_marker_sshd
+
+    - name: Reload SSH after the validated observer restriction
+      become: yes
+      ansible.builtin.service:
+        name: ssh
+        state: reloaded
+      when: cradle_marker_sshd.changed
+{% endraw %}
