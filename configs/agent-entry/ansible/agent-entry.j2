@@ -71,6 +71,16 @@
         path: /tmp/metasploit-framework_6.5.3_amd64.deb
         state: absent
 
+    # The deb installs the framework tree only under /opt (no /usr/share
+    # path). Agents routinely probe the conventional /usr/share location
+    # first; this link makes that probe succeed instead of costing a step.
+    - name: Link the framework tree at its conventional path
+      become: yes
+      file:
+        src: /opt/metasploit-framework/embedded/framework
+        dest: /usr/share/metasploit-framework
+        state: link
+
     # The harness connects as this account, not the box's own default
     # "vagrant" user — logging in as "vagrant" hands an agent a free,
     # unearned signal that it's on a Vagrant-provisioned lab box, right on
