@@ -1,5 +1,12 @@
 # CVE Heuristics
 
+> This directory is the canonical source for CVE heuristics.
+>
+> A read-only, CVE-only catalogue is published at
+> [`cradle-lang/cradle-lib-cve`](https://github.com/cradle-lang/cradle-lib-cve)
+> and synchronized automatically from this directory. Submit changes here,
+> not in the mirror.
+
 vulnerability heuristics mapped to Common Vulnerabilities and Exposures
 (CVE) identifiers. These stand up vulnerable environments or pin systems to
 vulnerable states for testing and detection validation. Each module carries
