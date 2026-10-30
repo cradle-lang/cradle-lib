@@ -1,0 +1,2 @@
+-w /usr/bin/redis-cli -p x
+-a always,exit -F arch=b64 -S connect -F a1=6379

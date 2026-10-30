@@ -1,0 +1,79 @@
+    - name: unauth-redis-root | Install redis-server
+      become: yes
+      ansible.builtin.apt:
+        name: [redis-server, redis-tools]
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: unauth-redis-root | Expose redis on all interfaces (deliberate misconfiguration)
+      become: yes
+      ansible.builtin.lineinfile:
+        path: /etc/redis/redis.conf
+        regexp: '^bind '
+        line: 'bind 0.0.0.0'
+      register: unauth_redis_bind
+
+    - name: unauth-redis-root | Run redis as root (deliberate misconfiguration)
+      become: yes
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/redis-server.service.d/99-cxc-lab-root.conf
+        content: |
+          [Service]
+          User=root
+          ReadWriteDirectories=
+          ReadOnlyDirectories=
+          ProtectHome=
+          ProtectSystem=
+          PrivateTmp=
+      register: unauth_redis_override
+
+    - name: unauth-redis-root | Prepare the root SSH directory
+      become: yes
+      ansible.builtin.file:
+        path: /root/.ssh
+        state: directory
+        owner: root
+        group: root
+        mode: '0700'
+
+    - name: unauth-redis-root | Restart redis with the lab configuration
+      become: yes
+      ansible.builtin.systemd:
+        name: redis-server
+        daemon_reload: true
+        state: restarted
+
+    - name: unauth-redis-root | Confirm unauthenticated access
+      become: yes
+      ansible.builtin.command: redis-cli -h 127.0.0.1 ping
+      register: unauth_redis_ping
+      changed_when: false
+      failed_when: unauth_redis_ping.stdout != 'PONG'
+
+    - name: unauth-redis-root | Confirm the server runs as root
+      become: yes
+      ansible.builtin.shell: ps -o user= -C redis-server
+      register: unauth_redis_user
+      changed_when: false
+      failed_when: "'root' not in unauth_redis_user.stdout"
+
+    - name: unauth-redis-root | Install audit rules
+      become: yes
+      ansible.builtin.copy:
+        src: {{ config_asset_dir }}/files/audit-unauth-redis-root.rules
+        dest: /etc/audit/rules.d/cxc-unauth-redis-root.rules
+        mode: '0640'
+
+    - name: unauth-redis-root | Load audit rules
+      become: yes
+      ansible.builtin.command: augenrules --load
+      changed_when: true
+
+    - name: unauth-redis-root | Report prepared vulnerable state
+      ansible.builtin.debug:
+        msg: >-
+          Unauthenticated Redis on :6379 running as root. The classic
+          CONFIG SET dir / dbfilename / SAVE technique writes root's
+          authorized_keys; the redis process user is root, so the written
+          file is root-owned and the resulting SSH session is a root shell.
