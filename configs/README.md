@@ -133,6 +133,7 @@ assembler — they exist as configs on an instance, but there is no
 | [`attacker`](./attacker) | Installs a baseline attacker toolkit (nmap, netcat, curl, wget, python3/pip, Flask) |
 | [`agent-entry`](./agent-entry) | Marks the instance an autonomous AI agent starts from — installs reconnaissance, SSH/tunnelling (including sshpass), web/authentication testing, SMB/LDAP/Impacket, and scripting tools (see below). Distinct from `attacker`: a scenario's own hand-authored attacker VM may or may not be where an agent is meant to start; this config is the explicit, unambiguous signal for that, checked by name/config rather than guessed |
 | [`linux-msf`](./linux-msf) | Installs the Metasploit Framework |
+| [`lab-hardening`](./lab-hardening) | Target-side hardening: disables SSH password authentication and locks the provisioning account password, so runs measure the provisioned vulnerabilities rather than default credentials. Key-based access (controller key, marker observer) and NOPASSWD sudo are preserved. Declare it last on each target instance |
 
 ### Agent entry toolkit
 
