@@ -16,8 +16,8 @@
       ansible.builtin.apt:
         name: [python3, sudo, openssh-server]
         state: present
-        update_cache: yes
-        cache_valid_time: 3600
+      # No update_cache: observer provisioning may run after sealing, when
+      # guest egress is blocked by design. Packages are installed at deploy.
 
     - name: Prepare the optional user marker directory
       become: yes
