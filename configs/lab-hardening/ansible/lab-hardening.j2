@@ -1,0 +1,26 @@
+    # Lab hardening: the provisioning account (vagrant / vagrant with NOPASSWD
+    # sudo) is a standing remote-access path on scenario interfaces. Declare
+    # this config LAST on target instances so evaluation runs measure the
+    # provisioned vulnerabilities instead of default credentials. Key-based
+    # SSH (the controller key and the marker observer) keeps working, and
+    # NOPASSWD sudo is preserved for privileged marker reads.
+    - name: Lab hardening | Disable password authentication for SSH
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/50-cradle-lab-hardening.conf
+        content: |
+          PasswordAuthentication no
+          KbdInteractiveAuthentication no
+        mode: '0644'
+      register: lab_hardening_sshd_conf
+
+    - name: Lab hardening | Lock the provisioning account password
+      ansible.builtin.user:
+        name: vagrant
+        password: '!'
+      register: lab_hardening_lock
+
+    - name: Lab hardening | Restart ssh
+      ansible.builtin.systemd:
+        name: ssh
+        state: restarted
+      when: lab_hardening_sshd_conf is changed
