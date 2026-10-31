@@ -1,7 +1,7 @@
 # cradle-lib
 
-External content library for [CradleXC](https://github.com/cradle-lang/CradleXC)
-(`cxc` / the internal `cxc-dev` tool): every `config()` and
+External content library for the [CRADLE compiler](https://cradle-lang.org/docs/getting-started/install-cradlexc/)
+(`cxc`): every `config()` and
 `heuristic("<framework>", "<value>")` a `.cradle` scenario can reference
 resolves against this repository by default.
 
@@ -21,8 +21,8 @@ Either setting also accepts a local folder path instead of a git URL, for
 working on content offline before pushing it here.
 
 When a scenario references a `config()`/`heuristic()` that isn't already
-present locally, `cxc build` / `deploy` / `emit` / `update` (and their
-`cxc-dev` equivalents) sparse-fetch just that one subtree from this repo —
+present locally, supported compiler operations such as `cxc build`
+sparse-fetch just that one subtree from this repo —
 never a full clone — into a per-URL cache under `~/.cxc/cache/`. Adding new
 configs or heuristics here never grows what a single deploy has to fetch.
 
