@@ -6,3 +6,4 @@ website-export/
 *.log
 __pycache__/
 *.pyc
+website-config-export/

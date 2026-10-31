@@ -49,3 +49,9 @@ and [`heuristics/README.md`](./heuristics) for heuristic frameworks, the
 
 Import an existing module and generate its article with `--generate-index`.
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the command and publication workflow.
+
+## Contributing configurations
+
+Import an existing configuration and generate its article with
+`npm run library:new -- configuration <name> --from <folder> --generate-index`.
+See [CONTRIBUTING.md](CONTRIBUTING.md#contributing-configuration-modules).
