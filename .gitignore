@@ -1,1 +1,8 @@
-# nothing generated here yet
+node_modules/
+website-export/
+.env
+.env.*
+!.env.example
+*.log
+__pycache__/
+*.pyc

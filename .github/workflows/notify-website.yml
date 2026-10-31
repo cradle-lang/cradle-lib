@@ -1,0 +1,47 @@
+name: Notify website after validated TTP update
+on:
+  workflow_run:
+    workflows: ['Validate TTP library']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  notify:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      contains(fromJSON('["push","workflow_dispatch"]'), github.event.workflow_run.event) &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify website notification credentials
+        env:
+          DISPATCH_TOKEN: ${{ secrets.CRADLE_LANG_TOKEN }}
+        run: |
+          if [ -z "$DISPATCH_TOKEN" ]; then
+            echo 'Configure CRADLE_LANG_TOKEN with Contents write on cradle-lang/cradle-lang.github.io.'
+            exit 1
+          fi
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const {data: branch} = await github.rest.repos.getBranch({...context.repo, branch: 'main'});
+            if (branch.commit.sha !== run.head_sha) {core.notice('Skipping stale TTP validation.'); return;}
+            const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {...context.repo, run_id: run.id});
+            if (!artifacts.some(item => item.name === 'website-ttps' && !item.expired)) throw new Error('Validated run has no website-ttps artifact');
+            core.exportVariable('TTP_SOURCE_RUN_ID', String(run.id));
+            core.exportVariable('TTP_SOURCE_SHA', run.head_sha);
+      - name: Request website review PR
+        if: env.TTP_SOURCE_RUN_ID != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.CRADLE_LANG_TOKEN }}
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: 'cradle-lang', repo: 'cradle-lang.github.io', event_type: 'ttp-library-updated',
+              client_payload: {source_repository: context.repo.owner + '/' + context.repo.repo, source_sha: process.env.TTP_SOURCE_SHA, source_run_id: process.env.TTP_SOURCE_RUN_ID}
+            });
+            await core.summary.addHeading('TTP website review requested').addRaw(`Source: ${process.env.TTP_SOURCE_SHA}\n\nValidation run: ${process.env.TTP_SOURCE_RUN_ID}\n\nPublication requires merging the website PR and successful Pages deployment.`).write();

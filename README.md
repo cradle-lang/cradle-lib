@@ -44,3 +44,8 @@ heuristics/
 See [`configs/README.md`](./configs) for the full list of available configs,
 and [`heuristics/README.md`](./heuristics) for heuristic frameworks, the
 `manifest.json` contract, and available modules.
+
+## Contributing TTP heuristics
+
+Import an existing module and generate its article with `--generate-index`.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the command and publication workflow.
