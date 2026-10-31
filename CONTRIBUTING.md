@@ -66,3 +66,31 @@ files stay here. Contributors do not need to export or synchronize manually.
 
 See the [website guide](https://cradle-lang.org/docs/guides/contribute-ttp) for the
 full walkthrough and [automation reference](docs/automation.md) for recovery.
+
+## Contributing configuration modules
+
+Configurations are authored under `configs/<name>/` in this repository and do not
+require `manifest.json`. Include a nonempty `ansible/<name>.j2`, supporting files
+and a README describing requirements, parameters, verification and attribution.
+Use the existing setup and `.env` instructions above, then run:
+
+```powershell
+npm run library:new -- configuration linux-my-service --from "C:\path\to\MyConfiguration" --generate-index
+```
+
+The command uses `library/_templates/configuration/index.md`, copied from the
+website configuration template. It preserves the original source and an existing
+authored `index.md`, refuses destination overwrite and starts generated articles
+as drafts. Review the generated `configs/linux-my-service/index.md`, including
+`config`, `os`, `category`, implementation, requirements and licensing. Allowed OS
+labels are Linux, Windows, Cross-platform and Unspecified. The exact config name
+must match its folder and template, including case. Prefer lowercase new names.
+Set `draft: false` when ready for publication; do not add `sourceUrl` or article IDs.
+
+Commit the complete module folder and open a draft source PR. CI checks required
+templates, metadata, local links, exported Markdown and script tests. It does not
+render or execute provisioning. Successful main validation opens/updates a separate
+website review PR with articles and automatic commit-pinned module links. Website
+PR merge and successful Pages deployment are required for publication.
+
+See the [configuration contribution guide](https://cradle-lang.org/docs/guides/contribute-configuration).

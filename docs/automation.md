@@ -47,3 +47,37 @@ For an expired artifact, dispatch full validation on current source main, then u
 its successful run ID as `source_run_id` in the website receiver's manual dispatch.
 Old source revisions are skipped. Initial setup requires merging the receiver into
 the website default branch before the first source-main handoff.
+
+## Configuration authoring and publication
+
+Configurations live in `configs/<name>/` with a nonempty `ansible/<name>.j2` and
+`index.md` (preferred) or README article. No manifest is required. The existing
+52 website configuration articles were adopted into their matching source folders
+without changing names, requirements or publication status. Future changes belong
+in this source repository. Case-sensitive source names map to lowercase website
+routes; underscores/dots map to hyphens and collisions are rejected.
+
+```sh
+npm run library:describe -- configuration linux-my-service --force
+npm run library:export-configurations
+```
+
+The new/describe commands dispatch by kind; existing TTP commands remain valid.
+`npm run check` validates and tests both collections. `library:export-website`
+continues to export TTPs to `website-export/bundle.json`; configuration export uses
+`website-config-export/bundle.json`, so the artifacts do not overwrite each other.
+
+`validate-configs.yml` runs full validation on PRs, main pushes and manual dispatch,
+then uploads `website-configurations` for 14 days. `notify-config-website.yml`
+only dispatches `configuration-library-updated` after successful current-main
+push/manual validation. The website `sync-config-library.yml` receiver verifies
+source/workflow/revision/artifact/freshness and opens `configuration-library-sync`.
+It commits only configuration articles and `library/configuration-library.json`.
+Removed managed articles are drafted; heuristic and manual configuration entries
+remain. Review and merge the website content PR to publish through Pages.
+
+The same CRADLE_LANG_TOKEN permissions and recovery procedure described above
+apply. Merge the website receiver before the source automation. To recover an
+expired artifact, manually validate current main, then pass that successful run ID
+to the configuration receiver's `source_run_id`. These checks do not render or
+execute templates or validate remote downloads and runtime behavior.

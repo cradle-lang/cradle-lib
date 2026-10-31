@@ -6,12 +6,13 @@
     "node": ">=22"
   },
   "scripts": {
-    "library:new": "node scripts/new-ttp.mjs",
-    "library:describe": "node scripts/generate-ttp-article.mjs",
-    "library:check": "node scripts/export-ttps.mjs --check",
+    "library:new": "node scripts/library-command.mjs new",
+    "library:describe": "node scripts/library-command.mjs describe",
+    "library:check": "node scripts/export-ttps.mjs --check && node scripts/export-configs.mjs --check",
     "library:export-website": "node scripts/export-ttps.mjs",
     "test": "node --test scripts/*.test.mjs",
-    "check": "npm run library:check && node scripts/check-configs.mjs && npm test"
+    "check": "npm run library:check && node scripts/check-configs.mjs && npm test",
+    "library:export-configurations": "node scripts/export-configs.mjs"
   },
   "dependencies": {
     "mdast-util-from-markdown": "^2.0.2",
