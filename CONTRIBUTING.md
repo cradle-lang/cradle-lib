@@ -94,3 +94,14 @@ website review PR with articles and automatic commit-pinned module links. Websit
 PR merge and successful Pages deployment are required for publication.
 
 See the [configuration contribution guide](https://cradle-lang.org/docs/guides/contribute-configuration).
+
+## Documentation quality
+
+Run `npm run docs:check` before submitting. It checks Markdown and MDX using the
+same `.markdownlint.json` rules as the website, including new unstaged documents.
+Ignored/generated files and CI dependency checkouts are excluded. Errors identify
+the file, line and rule; fix the source rather than weakening the rules.
+
+GitHub exposes a separate **Docs Quality / markdownlint** check on PRs, main pushes
+and manual runs. `npm run check` also runs it before validation and website export,
+so documentation-quality failures prevent the automated website handoff.

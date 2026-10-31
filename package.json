@@ -11,8 +11,9 @@
     "library:check": "node scripts/export-ttps.mjs --check && node scripts/export-configs.mjs --check",
     "library:export-website": "node scripts/export-ttps.mjs",
     "test": "node --test scripts/*.test.mjs",
-    "check": "npm run library:check && node scripts/check-configs.mjs && npm test",
-    "library:export-configurations": "node scripts/export-configs.mjs"
+    "check": "npm run docs:check && npm run library:check && node scripts/check-configs.mjs && npm test",
+    "library:export-configurations": "node scripts/export-configs.mjs",
+    "docs:check": "node scripts/check-docs.mjs"
   },
   "dependencies": {
     "mdast-util-from-markdown": "^2.0.2",
