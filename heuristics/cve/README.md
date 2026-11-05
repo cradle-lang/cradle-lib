@@ -25,6 +25,7 @@ a `manifest.json` declaring its implied `os()`/`config()` requirements.
 | [`CVE-2022-0847`](./CVE-2022-0847) | Dirty Pipe (Linux kernel page-cache write) | Version-gated kernel pin + built PoC | N/A |
 | [`CVE-2026-109618`](./CVE-2026-109618) | PHP2Shell disclosure facet: PHP engine upload-progress unserializer use-after-free (heap memory disclosure via session cookie) | Source-built PHP 8.4.26 mod_php + distro Apache | Port `8080` |
 | [`CVE-2026-109619`](./CVE-2026-109619) | PHP2Shell RCE facet: fatal-error backtrace use-after-free + OPcache type confusion, pre-auth RCE below the application layer | Source-built PHP 8.4.26 mod_php + distro Apache | Port `8080` |
+| [`CVE-2015-3306`](./CVE-2015-3306) | ProFTPD 1.3.5 mod_copy: unauthenticated `SITE CPFR/CPTO` arbitrary root-owned file copy | Native build + systemd service | Port `21` |
 
 Both PHP2Shell modules intentionally ship no exploit: provisioning asserts the vulnerable configuration
 (unpatched 8.4.26, mod_php handler, upload progress on, OPcache on) and stops there; the two are
