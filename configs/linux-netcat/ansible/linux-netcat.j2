@@ -1,7 +1,12 @@
     - name: Install Netcat
       become: yes
       apt:
-        name: netcat
+        # Kali 2026.2 ships both netcat providers, so the virtual name has no
+        # single candidate and apt refuses it.
+        name: "{% raw %}{{ 'netcat-traditional'
+          if ansible_facts['distribution'] == 'Kali'
+          and ansible_facts['distribution_version'] is version('2026.2', '>=')
+          else 'netcat' }}{% endraw %}"
         state: present
         update_cache: yes
         cache_valid_time: 3600

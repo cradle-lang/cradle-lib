@@ -9,7 +9,12 @@
       apt:
         name:
           - nmap
-          - netcat
+          # Kali 2026.2 ships both netcat providers, so the virtual name has no
+          # single candidate and apt refuses it.
+          - "{% raw %}{{ 'netcat-traditional'
+            if ansible_facts['distribution'] == 'Kali'
+            and ansible_facts['distribution_version'] is version('2026.2', '>=')
+            else 'netcat' }}{% endraw %}"
           - curl
           - wget
           - python3
